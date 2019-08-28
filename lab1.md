@@ -14,12 +14,12 @@
 ● 通过串口/并口/CGA 输出字符的方法  
 ## 【实验方案】  
 包括：硬件或虚拟机配置方法、软件工具与作用、方案的思想、相关原理、程序流程、算法和数据结构、程序关键模块，结合代码与程序中的位置位置进行解释，组员工作分工。  
-虚拟机使用Ubuntu，主要的代码编辑与查看工具VSCode，结合Ucore启动过程指导与网上的资料完成实验。
-### 练习 1：理解通过make 生成执行文件的过程。（要求在报告中写出对下述问题的回答）  
-在此练习中，大家需要通过静态分析代码来了解：
+虚拟机使用Ubuntu，主要的代码编辑与查看工具VSCode，结合Ucore启动过程指导与网上的资料完成实验。  
+### 练习 1：理解通过make 生成执行文件的过程。（要求在报告中写出对下述问题的回答）   
+在此练习中，大家需要通过静态分析代码来了解： 
 1. 操作系统镜像文件 ucore.img 是如何一步一步生成的？(需要比较详细地解释Makefile 中每一条相关命令和命令参数的含义，以及说明命令导致的结果)  
-首先找到创建ucore.img的makefile代码如下
-```makefile
+首先找到创建ucore.img的makefile代码如下   
+```makefile  
 # create ucore.img
 UCOREIMG	:= $(call totarget,ucore.img)
 
@@ -29,9 +29,9 @@ $(UCOREIMG): $(kernel) $(bootblock)
 	$(V)dd if=$(kernel) of=$@ seek=1 conv=notrunc
 
 $(call create_target,ucore.img)
-```
-可以看到要生成ucore.img首先要生成kernel和bootblock
-生成kernel代码如下  
+```  
+可以看到要生成ucore.img首先要生成kernel和bootblock  
+生成kernel代码如下    
 ```makefile
 # create kernel target
 kernel = $(call totarget,kernel)
@@ -46,15 +46,15 @@ $(kernel): $(KOBJS)
 
 $(call create_target,kernel)
 ```
-运行makefile，在其中找到kernel的实际命令为
-![](picture\lab1-1.png)
-关键参数  
+运行makefile，在其中找到kernel的实际命令为  
+![](picture\lab1-1.png)  
+关键参数   
 	-m	模拟指定的连接器  
 	-nostdlib		不使用标准库  
 	-T	指定命令文件  
 	-o	指定输出文件的名称  
 可以发现生成kernel所需要的文件有：tools/kernel.ld obj/kern/init/init.o obj/kern/libs/readline.o obj/kern/libs/stdio.o obj/kern/debug/kdebug.o obj/kern/debug/kmonitor.o obj/kern/debug/panic.o obj/kern/driver/clock.o obj/kern/driver/console.o obj/kern/driver/intr.o obj/kern/driver/picirq.o obj/kern/trap/trap.o obj/kern/trap/trapentry.o obj/kern/trap/vectors.o obj/kern/mm/pmm.o obj/libs/printfmt.o obj/libs/string.o  
-生成这些文件的makefile为下面的批处理代码
+生成这些文件的makefile为下面的批处理代码  
 ```makefile
 # kernel
 
@@ -73,9 +73,9 @@ KSRCDIR		+= kern/init \
 KCFLAGS		+= $(addprefix -I,$(KINCLUDE))
 
 $(call add_files_cc,$(call listf_cc,$(KSRCDIR)),kernel,$(KCFLAGS))
-``` 
-其实际代码为（以init.o为例）
-![](picture\lab1-2.png) 
+```  
+其实际代码为（以init.o为例）  
+![](picture\lab1-2.png)   
 关键参数  
 	-fno-bultin	除非用_builtin_前缀，否则不进行builtin函数的优化  
 	-ggdb	此选项将尽可能的生成gdb的可以使用的调试信息  
@@ -86,7 +86,7 @@ $(call add_files_cc,$(call listf_cc,$(KSRCDIR)),kernel,$(KCFLAGS))
 	-I\<dir\> 添加搜索头文件的路径  
 kernel生成完成  
   
-生成blootblock的makefile代码如下
+生成blootblock的makefile代码如下  
 ```makefile
 # create bootblock
 bootfiles = $(call listf_cc,boot)
@@ -103,25 +103,25 @@ $(bootblock): $(call toobj,$(bootfiles)) | $(call totarget,sign)
 
 $(call create_target,bootblock)
 ```  
-其生成代码为
-![](picture\lab1-3.png)
+其生成代码为  
+![](picture\lab1-3.png)  
 关键参数:  
 	-N设置代码段和数据段均可读写  
 可以看到生成bootblock需要bootasm.o，bootmain.o,以及sign  
-bootasm.o和bootmain.o由以下makefile代码生成
+bootasm.o和bootmain.o由以下makefile代码生成  
 ```makefile
 bootfiles = $(call listf_cc,boot)
 $(foreach f,$(bootfiles),$(call cc_compile,$(f),$(CC),$(CFLAGS) -Os -nostdinc))
-```
-实际代码为
-![](picture\lab1-4.png) 
-sign的makefile代码为
+```  
+实际代码为  
+![](picture\lab1-4.png)  
+sign的makefile代码为  
 ```makefile
 # create 'sign' tools
 $(call add_files_host,tools/sign.c,sign,sign)
 $(call create_target_host,sign,sign) 
 ```
-生成代码为 
+生成代码为   
 ![](picture\lab1-5.png)
 2. 一个被系统认为是符合规范的硬盘主引导扇区的特征是什么？  
 ```c
@@ -137,10 +137,10 @@ $(call create_target_host,sign,sign)
     buf[510] = 0x55;
     buf[511] = 0xAA;
 ```  
-一个磁盘主引导扇区512字节，且第510个字节为0X55,第511个字节为0XAA
+一个磁盘主引导扇区512字节，且第510个字节为0X55,第511个字节为0XAA  
 ### 练习 2：使用qemu 执行并调试lab1 中的软件。（要求在报告中简要写出练习过程）
-为了熟悉使用 qemu 和gdb 进行的调试工作，我们进行如下的小练习：
-1. 从 CPU 加电后执行的第一条指令开始，单步跟踪BIOS 的执行。  
+为了熟悉使用 qemu 和gdb 进行的调试工作，我们进行如下的小练习： 
+1. 从 CPU 加电后执行的第一条指令开始，单步跟踪BIOS 的执行。   
 
 修改makefile中debug的代码，将调试信息存入q.log中，同时删除gdbinit中的continue语句  
 ```makefile
@@ -148,9 +148,9 @@ $(call create_target_host,sign,sign)
 	$(V)$(QEMU) -d in_asm -D q.log -S -s -parallel stdio -hda $< -serial null &
 	$(V)sleep 2
 	$(V)$(TERMINAL) -e "gdb -q -tui -x tools/gdbinit"
-```
-在命令行执行make debug，用next或者si单步调试,输入x /2i $pc即可查看附近两条汇编代码
-![](picture\lab1-6.png)  
+```  
+在命令行执行make debug，用next或者si单步调试,输入x /2i $pc即可查看附近两条汇编代码  
+![](picture\lab1-6.png)   
 
 2. 在初始化位置 0x7c00 设置实地址断点,测试断点正常。 
 
@@ -160,14 +160,14 @@ $(call create_target_host,sign,sign)
 
 3. 在调用 qemu 时增加-d in_asm -D q.log 参数，便可以将运行的汇编指令保存在q.log 中。将执行的汇编代码与bootasm.S 和bootblock.asm 进行比较，看看二者是否一致。  
 
-关闭gdb，打开我们之前改makefile生成的q.log文件，找到0x00007c00处的代码
-![](picture\lab1-9.png)
-同时我们打开bootasm.S和bootblock.asm文件，可以发现，两个文件的代码其实是一样的，且与q.log 0x00007c00后的代码是一致的  
-![](picture\lab1-10.png)
-### 练习 3：分析bootloader 进入保护模式的过程。（要求在报告中写出分析）
-BIOS 将通过读取硬盘主引导扇区到内存，并转跳到对应内存中的位置执行bootloader。请分析bootloader 是如何完成从实模式进入保护模式的。  
-提示：需要阅读3.2.1 小节“保护模式和分段机制”和lab1/boot/bootasm.S 源码，了解如何从实模式切换到保护模式。  
-1. 首先关中断以及数据寄存器清零
+关闭gdb，打开我们之前改makefile生成的q.log文件，找到0x00007c00处的代码  
+![](picture\lab1-9.png)  
+同时我们打开bootasm.S和bootblock.asm文件，可以发现，两个文件的代码其实是一样的，且与q.log 0x00007c00后的代码是一致的   
+![](picture\lab1-10.png)  
+### 练习 3：分析bootloader 进入保护模式的过程。（要求在报告中写出分析）  
+BIOS 将通过读取硬盘主引导扇区到内存，并转跳到对应内存中的位置执行bootloader。请分析bootloader 是如何完成从实模式进入保护模式的。   
+提示：需要阅读3.2.1 小节“保护模式和分段机制”和lab1/boot/bootasm.S 源码，了解如何从实模式切换到保护模式。    
+1. 首先关中断以及数据寄存器清零  
 ```AT&T
     cli                                             # Disable interrupts
     cld                                             # String operations increment
@@ -178,9 +178,9 @@ BIOS 将通过读取硬盘主引导扇区到内存，并转跳到对应内存中
     movw %ax, %es                                   # -> Extra Segment
     movw %ax, %ss                                   # -> Stack Segment
 
-``` 
-2. 开启A20，将A20地址线置1，以此使用32根地址线，访问4G空间
-```AT&T
+```  
+2. 开启A20，将A20地址线置1，以此使用32根地址线，访问4G空间  
+```AT&T  
     # Enable A20:
     #  For backwards compatibility with the earliest PCs, physical
     #  address line 20 is tied low, so that addresses higher than
@@ -192,28 +192,28 @@ seta20.1:
 
     movb $0xd1, %al                                 # 0xd1 -> port 0x64
     outb %al, $0x64                                 # 0xd1 means: write data to 8042's P2 port
-``` 
-首先等待8042 input buffer为空，向其发送写数据的指令  
-再次等待8042 input buffer为空，将0xdf发送至0x60，打开A20  
-3. 初始化GDB表，将其载入
-```
+```   
+首先等待8042 input buffer为空，向其发送写数据的指令   
+再次等待8042 input buffer为空，将0xdf发送至0x60，打开A20   
+3. 初始化GDB表，将其载入  
+```AT&T
     lgdt gdtdesc
-```
-4. 进入保护模式，将cr0寄存器PE置1，开启保护模式
-```
+```  
+4. 进入保护模式，将cr0寄存器PE置1，开启保护模式  
+```AT&T 
     movl %cr0, %eax
     orl $CR0_PE_ON, %eax
     movl %eax, %cr0
-```
-5. 通过长跳转更新cs的基地址
-```
+```  
+5. 通过长跳转更新cs的基地址  
+```AT&T  
 ljmp $PROT_MODE_CSEG, $protcseg
 
 .code32                                             # Assemble for 32-bit mode
 protcseg:
-``` 
-6. 设置段寄存器，建立堆栈
-```
+```  
+6. 设置段寄存器，建立堆栈   
+```AT&T
     # Set up the protected-mode data segment registers
     movw $PROT_MODE_DSEG, %ax                       # Our data segment selector
     movw %ax, %ds                                   # -> DS: Data Segment
@@ -225,19 +225,19 @@ protcseg:
     # Set up the stack pointer and call into C. The stack region is from 0--start(0x7c00)
     movl $0x0, %ebp
     movl $start, %esp
-``` 
-7. 转到保护模式完成，call进入bootmain 
-```
+```  
+7. 转到保护模式完成，call进入bootmain  
+```AT&T
     call bootmain
 ``` 
 
 ### 练习 4：分析bootloader 加载ELF 格式的OS 的过程。（要求在报告中写出分析）  
-通过阅读 bootmain.c，了解bootloader 如何加载ELF 文件。通过分析源代码和通过qemu 来运行并调试bootloader&OS，
+通过阅读 bootmain.c，了解bootloader 如何加载ELF 文件。通过分析源代码和通过qemu 来运行并调试bootloader&OS， 
 1. bootloader 如何读取硬盘扇区的？  
 
-在启动指导中我们可以找到读一个扇区的启动流程
-![](picture\lab1-11.png) 
-回到bootmain.c的代码中，我们可以按这个进行划分
+在启动指导中我们可以找到读一个扇区的启动流程  
+![](picture\lab1-11.png)  
+回到bootmain.c的代码中，我们可以按这个进行划分  
 ```c
 /* readsect - read a single sector at @secno into @dst */
 static void
@@ -258,8 +258,8 @@ readsect(void *dst, uint32_t secno) {
     // read a sector
     insl(0x1F0, dst, SECTSIZE / 4);         //读取数据
 }
-``` 
-Readset包装了readsect，通过迭代使其可以读取任意长度的内容
+```  
+Readset包装了readsect，通过迭代使其可以读取任意长度的内容  
 ```c
 static void
 readseg(uintptr_t va, uint32_t count, uint32_t offset) {
@@ -319,10 +319,11 @@ bad:
     /* do nothing */
     while (1);
 }
-```
+```  
 
-### 练习 5：实现函数调用堆栈跟踪函数（需要编程）
+### 练习 5：实现函数调用堆栈跟踪函数（需要编程）  
 我 们 需 要 在 lab1 中完成kdebug.c 中函数print_stackframe 的实现， 可以通过函数print_stackframe 来跟踪函数调用堆栈中记录的返回地址。在如果能够正确实现此函数，可在lab1 中执行“make qemu”后，在qemu 模拟器中得到类似如下的输出：  
+```
 ebp:0x00007b28 eip:0x00100992 args:0x00010094 0x00010094 0x00007b58 0x00100096  
 kern/debug/kdebug.c:305: print_stackframe+22  
 ebp:0x00007b38 eip:0x00100c79 args:0x00000000 0x00000000 0x00000000 0x00007ba8  
@@ -340,9 +341,10 @@ kern/init/init.c:28: kern_init+88
 ebp:0x00007bf8 eip:0x00007d73 args:0xc031fcfa 0xc08ed88e 0x64e4d08e 0xfa7502a8  
 <unknow>: -- 0x00007d72 –  
 ……  
-请完成实验，看看输出是否与上述显示大致一致，并解释最后一行各个数值的含义。  
-参考注释，代码如下  
-```c
+```  
+请完成实验，看看输出是否与上述显示大致一致，并解释最后一行各个数值的含义。   
+参考注释，代码如下   
+```c  
 void
 print_stackframe(void) {
      /* LAB1 YOUR CODE : STEP 1 */
@@ -374,14 +376,14 @@ print_stackframe(void) {
 	ebp = ((uint32_t *)ebp)[0];
    }
 }
-``` 
-代码分析：先用read_ebp与read_eip获得最初的ebp与eip, 根据注释中的要求与要求中结果的规范，将ebp和eip输出，ebp是扩展基址指针寄存器，eip则是指令指针寄存器，因此这两个变量中储存的其实都是地址。根据注释，用arguments接收ebp+2这个地址的地址，并输出arguments[0-3]，用print_debuginfo输出调用它的函数名字与行数，用ebp指针更新下一次循环时ebp与eip的值。  
-因此，最后一行的内容的含义代表最初使用堆栈的那一个函数，即bootmain. bootloader设置的堆栈从0x7c00开始，使用call bootmain转入bootmain函数。 call指令压栈，所以bootmain中ebp为0x7bf8。
+```   
+代码分析：先用read_ebp与read_eip获得最初的ebp与eip, 根据注释中的要求与要求中结果的规范，将ebp和eip输出，ebp是扩展基址指针寄存器，eip则是指令指针寄存器，因此这两个变量中储存的其实都是地址。根据注释，用arguments接收ebp+2这个地址的地址，并输出arguments[0-3]，用print_debuginfo输出调用它的函数名字与行数，用ebp指针更新下一次循环时ebp与eip的值    
+因此，最后一行的内容的含义代表最初使用堆栈的那一个函数，即bootmain. bootloader设置的堆栈从0x7c00开始，使用call bootmain转入bootmain函数。 call指令压栈，所以bootmain中ebp为0x7bf8。  
 
-### 练习 6：完善中断初始化和处理（需要编程）
-请完成编码工作和回答如下问题：
+### 练习 6：完善中断初始化和处理（需要编程） 
+请完成编码工作和回答如下问题：  
 1. 中断向量表中一个表项占多少字节？其中哪几位代表中断处理代码的入口？  
-
+  
 在mmu.h找到表项的结构代码
 ```c
 /* Gate descriptors for interrupts and traps */
