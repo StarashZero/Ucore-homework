@@ -404,7 +404,8 @@ struct gatedesc {
 可以看出2-3字节被用作段选择子，而0-1和6-7字节则拼成位移，结合即为中断处理程序的入口地址。
   
 2. 请编程完善kern/trap/trap.c 中对中断向量表进行初始化的函数idt_init。在idt_init 函数中，依次对所有中断入口进行初始化。使用mmu.h 中的SETGATE 宏，填充idt 数组内容。注意除了系统调用中断(T_SYSCALL)以外，其它中断均使用中断门描述符，权限为内核态权限；而系统调用中断使用异常，权限为陷阱门描述符。每个中断的入口由tools/vectors.c 生成，使用trap.c 中声明的vectors 数组即可。  
-```c
+ 
+```c  
 void
 idt_init(void) {
      /* LAB1 YOUR CODE : STEP 2 */
