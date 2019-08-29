@@ -197,3 +197,10 @@ swap_out_victim 则是选择将要被置换的页，因为使用的 FIFO，因�
 将页表与 PTE_A 相与，若为 0，则未被访问过 
 3.	何时进行换入和换出操作？  
 所需的页不在页表中且页表已满 
+## 【实验过程】 
+完成代码编写后，在命令行使用 make qemu, 结果如下 
+![](picture/lab3-3.jpg)  
+出现了一次探测页错误的过程与 5 次页置换过程。   
+check_pgfault() succeeded!与 check_swap() succeeded!成功输出，结果正确  
+![](picture/lab3-4.jpg) 
+make grade 成功通过 
