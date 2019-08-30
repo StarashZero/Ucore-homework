@@ -421,7 +421,7 @@ do_exit(int error_code) {
 
 （2）
  ![](picture/lab5-2.png)
-【实验过程】  
+## 【实验过程】  
 使用到的代码编写工具为sublime-text3，实验环境为ubuntu14，实验报告代码格式使用Visual Studio 2019.  
 实验结果:
 ![](picture/lab5-3.png) 
