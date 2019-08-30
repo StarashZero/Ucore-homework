@@ -2,7 +2,8 @@
 ## 【实验目的】
     •	了解第一个用户进程创建过程
     •	了解系统调用框架的实现机制
-    •	了解ucore如何实现系统调用sys_fork/sys_exec/sys_exit/sys_wait来进行进程管理
+    •	了解ucore如何实现系统调用sys_fork/sys_exec/sys_exit/sys_wait来进行进程管理  
+
 ## 【实验要求】
     •	为了实现实验的目标，实验提供了3个基本练习和2个扩展练习，要求完成实验报告。
     •	练习0：填写已有实验
@@ -10,7 +11,8 @@
     •	练习2：父进程复制自己的内存空间给子进程（需要编码）
     •	练习3：阅读分析源代码，理解进程执行 fork/exec/wait/exit 的实现，以及系统调用的实现（不需要编码）
     •	选做
-    •	扩展练习Challenge： ：实现 Copy on Write （COW）机制
+    •	扩展练习Challenge： ：实现 Copy on Write （COW）机制  
+
 ## 【实验方案】
 ### **练习0**：  
 **合并代码使用meld工具**:
