@@ -10,3 +10,4 @@
 4. [lab4](lab4)
 5. [lab5](lab5)
 6. [lab6](lab6)
+7. [lab7](lab7)
